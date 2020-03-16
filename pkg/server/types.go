@@ -24,6 +24,14 @@ type Result struct {
 	Data string `json:"data"`
 }
 
+type ListService struct {
+	ServiceCm []ServiceCm  `json:"items"`
+}
+
+type ServiceCm struct {
+	Name string              `json:"name"`
+	Data map[string]string   `json:"data"`
+}
 
 //        ----  login
 

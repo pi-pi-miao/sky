@@ -18,6 +18,15 @@ var (
 	name = "login"
 )
 
+func list()(result *v1.ConfigMapList,err error){
+	data,err := client.Client.CoreV1().ConfigMaps(ns).List(metav1.ListOptions{})
+	if err != nil {
+		fmt.Println("cm is not right",err)
+		return nil,err
+	}
+	return data,nil
+}
+
 func getService(method string,r *http.Request)(result interface{},err error){
 	s := &Service{}
 	body,err := ioutil.ReadAll(r.Body)
@@ -25,20 +34,16 @@ func getService(method string,r *http.Request)(result interface{},err error){
 		fmt.Println("read request body err",err)
 		return nil,err
 	}
+	fmt.Println("read ok",string(body))
 	err = json.Unmarshal(body,s)
 	if err != nil {
 		fmt.Println("unmarshal err",err)
 		return nil,err
 	}
-	cli,err := client.GetClient()
-	if err != nil {
-		fmt.Println("client is not right")
-		return nil,err
-	}
 	switch  {
-
 	case method == "get":
-		data,err := cli.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
+		fmt.Println("get cm")
+		data,err := client.Client.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
 		if err != nil {
 			fmt.Println("cm is not right",err)
 			return nil,err
@@ -46,7 +51,7 @@ func getService(method string,r *http.Request)(result interface{},err error){
 		result = data.Data
 		return result,nil
 	case method == "create":
-		_,err = cli.CoreV1().ConfigMaps(ns).Create(&v1.ConfigMap{
+		_,err = client.Client.CoreV1().ConfigMaps(ns).Create(&v1.ConfigMap{
 			ObjectMeta:   metav1.ObjectMeta{
 				Name:s.Name,
 			},
@@ -56,56 +61,63 @@ func getService(method string,r *http.Request)(result interface{},err error){
 		}
 		return nil,nil
 	case method == "add":
-		data,err := cli.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
+		data,err := client.Client.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
 		if err != nil {
 			fmt.Println("cm is not right",err)
 			return nil,err
 		}
+		if data.Data == nil {
+			data.Data = make(map[string]string,1024)
+		}
 		data.Data[s.Key] = s.Data
-		_,err = cli.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+		_,err = client.Client.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+			ObjectMeta:metav1.ObjectMeta{Name:s.Name},
 			Data:data.Data,
 		})
 		if err != nil {
+			fmt.Println("update err",err)
 			return nil,err
 		}
 	case method == "add_service":
-		_,err = cli.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+		_,err = client.Client.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
 			ObjectMeta:   metav1.ObjectMeta{
 				Name:s.Data,
 			},
 		})
 	case method == "update":
-		data,err := cli.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
+		data,err := client.Client.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
 		if err != nil {
 			fmt.Println("cm is not right",err)
 			return nil,err
 		}
-		if _,ok := data.Data[s.Key];!ok {
+		if _,ok := data.Data[s.Key];!ok || data.Data == nil{
 			return nil,errors.New(fmt.Sprintf("it is not key:%v and data%v",s.Key,s.Data))
 		}
 		data.Data[s.Key] = s.Data
-		_,err = cli.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+		_,err = client.Client.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+			ObjectMeta:metav1.ObjectMeta{Name:s.Name},
 			Data:data.Data,
 		})
 		if err != nil {
 			return nil,err
 		}
 	case method == "del_service":
-		err = cli.CoreV1().ConfigMaps(ns).Delete(s.Name,&metav1.DeleteOptions{})
+		err = client.Client.CoreV1().ConfigMaps(ns).Delete(s.Name,&metav1.DeleteOptions{})
 		if err != nil {
 			return nil,err
 		}
 	case method == "del_data":
-		data,err := cli.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
+		data,err := client.Client.CoreV1().ConfigMaps(ns).Get(s.Name,metav1.GetOptions{})
 		if err != nil {
 			fmt.Println("cm is not right",err)
 			return nil,err
 		}
-		if _,ok := data.Data[s.Key];!ok {
+		if _,ok := data.Data[s.Key];!ok || data.Data == nil{
 			return nil,errors.New(fmt.Sprintf("it is not key:%v and data%v",s.Key,s.Data))
 		}
 		delete(data.Data,s.Key)
-		_,err = cli.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+		_,err = client.Client.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+			ObjectMeta:metav1.ObjectMeta{Name:s.Name},
 			Data:data.Data,
 		})
 		if err != nil {
@@ -129,12 +141,8 @@ func login(r *http.Request)error{
 		fmt.Println("unmarshal err",err)
 		return err
 	}
-	cli,err := client.GetClient()
-	if err != nil {
-		fmt.Println("client is not right")
-		return err
-	}
-	data,err := cli.CoreV1().ConfigMaps(ns).Get(name,metav1.GetOptions{})
+
+	data,err := client.Client.CoreV1().ConfigMaps(ns).Get(name,metav1.GetOptions{})
 	if err != nil {
 		fmt.Println("cm is not right",err)
 		return err
@@ -158,12 +166,7 @@ func register(r *http.Request)error{
 		fmt.Println("unmarshal err",err)
 		return err
 	}
-	cli,err := client.GetClient()
-	if err != nil {
-		fmt.Println("client is not right")
-		return err
-	}
-	data,err := cli.CoreV1().ConfigMaps(ns).Get(name,metav1.GetOptions{})
+	data,err := client.Client.CoreV1().ConfigMaps(ns).Get(name,metav1.GetOptions{})
 	if err != nil {
 		fmt.Println("cm is not right",err)
 		return err
@@ -183,7 +186,7 @@ func register(r *http.Request)error{
 		return err
 	}
 	data.Data[name] = string(d)
-	_,err = cli.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
+	_,err = client.Client.CoreV1().ConfigMaps(ns).Update(&v1.ConfigMap{
 		Data:data.Data,
 	})
 	if err != nil {

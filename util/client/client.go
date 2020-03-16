@@ -1,9 +1,13 @@
 package client
 
 import (
-	"flag"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"flag"
+)
+
+var (
+	Client *kubernetes.Clientset
 )
 
 // todo add config to cli
@@ -18,5 +22,6 @@ func GetClient()(*kubernetes.Clientset,error){
 	if err != nil {
 		return nil,err
 	}
-	return clientset,nil
+	Client = clientset
+	return Client,nil
 }

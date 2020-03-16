@@ -3,6 +3,7 @@ module sky
 go 1.14
 
 require (
+	github.com/cznic/ql v1.2.0
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/json-iterator/go v1.1.9
 	github.com/urfave/cli v1.22.3
