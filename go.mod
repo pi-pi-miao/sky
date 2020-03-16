@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/json-iterator/go v1.1.9
-	github.com/urfave/cli v1.22.3 // indirect
+	github.com/urfave/cli v1.22.3
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
