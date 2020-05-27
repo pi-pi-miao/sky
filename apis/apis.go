@@ -2,17 +2,17 @@ package apis
 
 import (
 	"net/http"
-	"sky/pkg/server"
+	"sky/internal/controller"
 )
 
 func Apis(){
-	http.HandleFunc("/list",server.List)
-	http.HandleFunc("/get", server.GetService)
-	http.HandleFunc("/create", server.CreateService)
-	http.HandleFunc("/add_data", server.AddData)
-	http.HandleFunc("/update", server.UpdateService)
-	http.HandleFunc("/del_service", server.DelService)
-	http.HandleFunc("/del_data", server.DelData)
-	http.HandleFunc("/login", server.Login)
-	http.HandleFunc("/register", server.Register)
+	//http.HandleFunc("/list", controller.List)
+	//http.HandleFunc("/get", controller.GetService)
+	//http.HandleFunc("/create", controller.CreateService)
+	//http.HandleFunc("/add_data", controller.AddData)
+	//http.HandleFunc("/update", controller.UpdateService)
+	//http.HandleFunc("/del_service", controller.DelService)
+	//http.HandleFunc("/del_data", controller.DelData)
+	http.HandleFunc("/login", controller.Login)
+	http.HandleFunc("/register", controller.Register)
 }

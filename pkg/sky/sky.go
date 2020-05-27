@@ -1,42 +1,54 @@
 package sky
 
 import (
-	"fmt"
-	"net/http"
-	"sky/apis"
-	"sky/pkg/initiaze"
-	"sky/pkg/server"
+	"go.uber.org/zap"
+	corev1informers "k8s.io/client-go/informers/core/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 var (
-	ch = make(chan error,2)
+	Sky *Config
 )
 
-// todo  shut add pprof
-func Sky(addr,internal string)error{
-	apis.Apis()
-	initiaze.InitAll()
-	go startHttp(addr)
-	select {
-	case err :=<- ch:
-		return err
-	default:
-		if err := server.Start(internal);err != nil {
-			return err
-		}
-	}
-	return nil
+type Config struct {
+	SkyConfig *SkyConfig
 }
 
-func startHttp(addr string){
-	defer func() {
-		if err := recover();err != nil {
-			fmt.Println("[startHttp] goroutine panic")
-		}
-	}()
-	if err := http.ListenAndServe(addr,nil);err != nil {
-		ch <- err
-		return
-	}
+type SkyConfig struct {
+	SkyAddr      string   `toml:"sky_addr" json:"sky_addr"`
+	SkyPProfAddr string   `toml:"sky_pprof_addr" json:"sky_pprof_addr "`
+	AlarmUrl     string   `toml:"alarm_url" json:"alarm_url"`
+	IsDebug      bool     `toml:"is_debug" json:"is_debug"`
+	LogLevel     string   `toml:"log_level" json:"log_level"`
+	LogPath      string   `toml:"log_pah" json:"log_pah"`
+	NameSpace    string   `toml:"namespace" json:"namespace"`
+	Client *kubernetes.Clientset
+	SugaredLogger *zap.SugaredLogger
+	Stop         chan struct{}
+	Informer     corev1informers.ConfigMapInformer
 }
 
+func (c *Config)Env()bool{
+	return c.SkyConfig.IsDebug
+}
+
+func (c *Config)GetLogLevel()string{
+	return c.SkyConfig.LogLevel
+}
+
+func (c *Config)GetLogPath()string {
+	return c.SkyConfig.LogPath
+}
+
+func (c *Config)SetSugaredLogger(sugaredLogger *zap.SugaredLogger) {
+	c.SkyConfig.SugaredLogger = sugaredLogger
+	return
+}
+
+func (c *Config)GetSugaredLogger()*zap.SugaredLogger{
+	return c.SkyConfig.SugaredLogger
+}
+
+func (c *Config)GetAlarmUrl()string{
+	return c.SkyConfig.AlarmUrl
+}
