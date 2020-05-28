@@ -11,13 +11,24 @@ import (
 )
 
 
-func InitAll()(err error){
+func InitAll(path string)(err error){
 	Sky = &Config{SkyConfig:&SkyConfig{
 		Stop:make(chan struct{}),
 	}}
 	apis.Apis()
-	go pprofServer()
+	if err := initConfig(path);err != nil {
+		return err
+	}
 	if err := initClient();err != nil {
+		return err
+	}
+	if err := initLog();err != nil {
+		return err
+	}
+	if err := pprofServer();err != nil {
+		return err
+	}
+	if err := run();err != nil {
 		return err
 	}
 	return nil
@@ -44,6 +55,26 @@ func initClient()(err error){
 }
 
 
-func pprofServer(){
-	http.ListenAndServe(Sky.SkyConfig.SkyPProfAddr, nil)
+func pprofServer()error{
+	ch := make(chan error)
+	go func(){
+		if err := http.ListenAndServe(Sky.SkyConfig.SkyPProfAddr, nil);err != nil {
+			ch <- err
+			fmt.Println("start pprofServer err ",err)
+		}
+	}()
+	select {
+	case err :=<- ch:
+		close(ch)
+		return err
+	default:
+		return nil
+	}
+}
+
+func run()error{
+	if err := http.ListenAndServe(Sky.SkyConfig.SkyAddr,nil);err != nil {
+		return err
+	}
+	return nil
 }

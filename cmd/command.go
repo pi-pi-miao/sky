@@ -4,34 +4,31 @@ import (
 	"errors"
 	"fmt"
 	"github.com/urfave/cli"
-	"sky/pkg/sky"
+	"sky/pkg/server"
 )
 
 var (
 	start = cli.Command{
 
 		Name:                   "start",
-		Usage:					"--addr=0.0.0.0:10001",
+		Usage:					"--config=./config/config.toml",
 		Description:            "start sky",
 		Action:                 starts,
 		Flags:                  []cli.Flag{
 			&cli.StringFlag{
-				Name:"addr",
-				Usage:"this sky addr",
-			},
-			&cli.StringFlag{
-				Name:"internal",
+				Name:"config",
+				Usage:"this sky config",
 			},
 		},
 	}
 )
 
 func starts(cli *cli.Context)error{
-	addr := cli.String("addr")
-	if addr == "" {
-		return errors.New("please add --addr=ip:port")
+	config := cli.String("config")
+	if config == "" {
+		return errors.New("please add --config=./config/config.toml")
 	}
-	if err := server.Sky(addr);err != nil {
+	if err := server.Sky(config);err != nil {
 		fmt.Println("run sky failed ",err)
 		return err
 	}

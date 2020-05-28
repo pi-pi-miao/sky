@@ -52,3 +52,17 @@ func (c *Config)GetSugaredLogger()*zap.SugaredLogger{
 func (c *Config)GetAlarmUrl()string{
 	return c.SkyConfig.AlarmUrl
 }
+
+func (s *SkyConfig)OnAdd(object interface{}){
+
+}
+
+
+func (s *SkyConfig)OnUpdate(oldObject, newObject interface{}){
+
+}
+
+
+func (s *SkyConfig)OnDelete(object interface{}){
+
+}

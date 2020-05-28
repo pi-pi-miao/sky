@@ -1,17 +1,11 @@
 package server
 
 import (
-	"net/http"
-	"sky/pkg/initiaze"
+	"sky/pkg/sky"
 )
 
-var (
-	ch = make(chan error,2)
-)
-
-func Sky(addr,internal string)error{
-	initiaze.InitAll()
-	if err := http.ListenAndServe(addr,nil);err != nil {
+func Sky(path string)error{
+	if err := sky.InitAll(path);err != nil {
 		return err
 	}
 	return nil

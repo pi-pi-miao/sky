@@ -18,20 +18,7 @@ func (s *SkyConfig)CreateInformer(){
 		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
 		return
 	}
-}
-
-func (s *SkyConfig)AddFunc(object interface{}){
-
-}
-
-
-func (s *SkyConfig)UpdateFunc(object interface{}){
-
-}
-
-
-func (s *SkyConfig)DeleteFunc(object interface{}){
-
+	s.Informer.Informer().AddEventHandler(s)
 }
 
 func (s *SkyConfig)CheckNs(){
@@ -47,5 +34,4 @@ func (s *SkyConfig)CheckNs(){
 			},
 		})
 	}
-
 }
