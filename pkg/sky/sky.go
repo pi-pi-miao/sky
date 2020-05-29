@@ -26,6 +26,7 @@ type SkyConfig struct {
 	SugaredLogger *zap.SugaredLogger
 	Stop         chan struct{}
 	Informer     corev1informers.ConfigMapInformer
+	NamespaceInformer corev1informers.NamespaceInformer
 }
 
 func (c *Config)Env()bool{

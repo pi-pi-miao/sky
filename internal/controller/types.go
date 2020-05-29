@@ -5,6 +5,7 @@ import (
 	"sky/pkg/json"
 )
 
+
 type Service struct {
 	Name string `json:"name"`
 	Data string `json:"data"`
@@ -33,13 +34,12 @@ type Users struct {
 }
 
 type User struct {
-	Id   uint64 `json:"id"`
-	Name string `json:"name"`
+	Name string `json:"name" valid:"type(string)"`
 	Role Role   `json:"role"`
 	Lessee []*Lessee `json:"lessee"`
-	Email  string `json:"email"`
-	Phone  string `json:"phone"`
-	PassWd string `json:"passwd"`
+	Email  string `json:"email" valid:"email"`
+	Phone  string `json:"phone" valid:"type(string)"`
+	PassWd string `json:"passwd" valid:"stringlength(6|20)"`
 }
 
 type Role struct {
