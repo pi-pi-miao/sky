@@ -4,6 +4,7 @@ import (
 	"go.uber.org/zap"
 	corev1informers "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 )
 
 var (
@@ -27,6 +28,7 @@ type SkyConfig struct {
 	Stop         chan struct{}
 	Informer     corev1informers.ConfigMapInformer
 	NamespaceInformer corev1informers.NamespaceInformer
+	Informers   []cache.InformerSynced
 }
 
 func (c *Config)Env()bool{

@@ -16,8 +16,9 @@ func (s *SkyConfig)CreateInformer(){
 	factory := informers.NewSharedInformerFactory(s.Client, 0)
 	s.Informer = factory.Core().V1().ConfigMaps()
 	s.NamespaceInformer = factory.Core().V1().Namespaces()
+	s.Informers = append(s.Informers,s.Informer.Informer().HasSynced,s.NamespaceInformer.Informer().HasSynced)
 	go factory.Start(s.Stop)
-	if !cache.WaitForCacheSync(s.Stop, s.Informer.Informer().HasSynced,s.NamespaceInformer.Informer().HasSynced) {
+	if !cache.WaitForCacheSync(s.Stop, s.Informers...) {
 		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
 		return
 	}

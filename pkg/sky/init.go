@@ -3,18 +3,17 @@ package sky
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"k8s.io/client-go/tools/cache"
 	"net/http"
 	_ "net/http/pprof"
 	"sky/apis"
 	"sky/pkg/client"
-	logger "sky/pkg/log"
+	"sky/pkg/logger"
 )
 
 
 func InitAll(path string)(err error){
-	Sky = &Config{SkyConfig:&SkyConfig{
-		Stop:make(chan struct{}),
-	}}
+	initSky()
 	apis.Apis()
 	if err := initConfig(path);err != nil {
 		return err
@@ -32,6 +31,13 @@ func InitAll(path string)(err error){
 		return err
 	}
 	return nil
+}
+
+func initSky(){
+	Sky = &Config{SkyConfig:&SkyConfig{
+		Stop:make(chan struct{}),
+		Informers:make([]cache.InformerSynced,10),
+	}}
 }
 
 func initConfig(path string)error{
