@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func GetClient()(*kubernetes.Clientset,error){
+func GetClient() (*kubernetes.Clientset, error) {
 	var (
 		kubeconfig *string
 		err        error
@@ -25,5 +25,5 @@ func GetClient()(*kubernetes.Clientset,error){
 		panic(err)
 	}
 	Client, err := kubernetes.NewForConfig(config)
-	return Client,err
+	return Client, err
 }

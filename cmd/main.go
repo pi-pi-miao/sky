@@ -8,9 +8,7 @@ import (
 	"time"
 )
 
-
-
-func main(){
+func main() {
 	sky := cli.NewApp()
 	sky.Name = "sky"
 	sky.Compiled = time.Now()
@@ -18,7 +16,7 @@ func main(){
 	sky.Commands = []cli.Command{
 		start,
 	}
-	if err := sky.Run(os.Args);err != nil {
-		fmt.Println("sky start failed",err)
+	if err := sky.Run(os.Args); err != nil {
+		fmt.Println("sky start failed", err)
 	}
 }

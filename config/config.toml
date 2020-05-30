@@ -1,0 +1,24 @@
+[sky_config]
+sky_addr       = ":8080"
+sky_pprof_addr = ":9090"
+
+is_debug       = true
+alarm_url      = ""
+log_level      = "debug"
+log_pah        = "./log/log"
+namespace      = "sky"
+
+
+[code_error]
+request_error  = "10001"
+request_success= "10000"
+illegal_request= "10002"
+
+[user]
+user_store_name= "user"
+user_version   = "v1"
+user_kind      = "ConfigMap"
+
+[user_labels]
+      [user_labels.key]
+      value = "user"

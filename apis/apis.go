@@ -5,7 +5,7 @@ import (
 	"sky/internal/controller"
 )
 
-func Apis(){
+func Apis() {
 	//http.HandleFunc("/list", controller.List)
 	//http.HandleFunc("/get", controller.GetService)
 	//http.HandleFunc("/create", controller.CreateService)

@@ -1,10 +1,10 @@
 package logger
 
 import (
-	conf "sky/config"
 	"fmt"
 	"log"
 	"net/http"
+	conf "sky/config"
 	"strings"
 	"time"
 
@@ -29,20 +29,20 @@ func ZnTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 
 func initLogger(logConfig conf.LogInterface) error {
 	var js string
-	if logConfig.Env()  {
+	if logConfig.Env() {
 		js = fmt.Sprintf(`{
       "level": "%s",
       "encoding": "console",
       "outputPaths": ["stdout", "%s"],
       "errorOutputPaths": ["stdout", "%s"]
-      }`, logConfig.GetLogLevel(),logConfig.GetLogPath(),logConfig.GetLogPath())
+      }`, logConfig.GetLogLevel(), logConfig.GetLogPath(), logConfig.GetLogPath())
 	} else {
 		js = fmt.Sprintf(`{
       "level": "%s",
       "encoding": "console",
       "outputPaths": ["%s"],
       "errorOutputPaths": ["%s"]
-      }`, logConfig.GetLogLevel(),logConfig.GetLogPath(),logConfig.GetLogPath())
+      }`, logConfig.GetLogLevel(), logConfig.GetLogPath(), logConfig.GetLogPath())
 	}
 
 	cfg := zap.Config{}
@@ -62,43 +62,43 @@ func initLogger(logConfig conf.LogInterface) error {
 	return nil
 }
 
-func Debug(logConfig conf.LogInterface,args ...interface{}) {
+func Debug(logConfig conf.LogInterface, args ...interface{}) {
 	logConfig.GetSugaredLogger().Debug(args...)
 }
 
-func Info(logConfig conf.LogInterface,args ...interface{}) {
+func Info(logConfig conf.LogInterface, args ...interface{}) {
 	logConfig.GetSugaredLogger().Info(args...)
 }
 
-func Warn(logConfig conf.LogInterface,args ...interface{}) {
-	SendMonitor2DingDing(logConfig.GetAlarmUrl(),fmt.Sprintf("%v",args))
+func Warn(logConfig conf.LogInterface, args ...interface{}) {
+	SendMonitor2DingDing(logConfig.GetAlarmUrl(), fmt.Sprintf("%v", args))
 	logConfig.GetSugaredLogger().Warn(args...)
 }
 
-func Error(logConfig conf.LogInterface,args ...interface{}) {
-	SendMonitor2DingDing(logConfig.GetAlarmUrl(),fmt.Sprintf("%v",args))
+func Error(logConfig conf.LogInterface, args ...interface{}) {
+	SendMonitor2DingDing(logConfig.GetAlarmUrl(), fmt.Sprintf("%v", args))
 	logConfig.GetSugaredLogger().Error(args...)
 }
 
-func Debugf(logConfig conf.LogInterface,format string, args ...interface{}) {
+func Debugf(logConfig conf.LogInterface, format string, args ...interface{}) {
 	logConfig.GetSugaredLogger().Debugf(format, args...)
 }
 
-func Infof(logConfig conf.LogInterface,format string, args ...interface{}) {
+func Infof(logConfig conf.LogInterface, format string, args ...interface{}) {
 	logConfig.GetSugaredLogger().Infof(format, args...)
 }
 
-func Warnf(logConfig conf.LogInterface,format string, args ...interface{}) {
-	SendMonitor2DingDing(logConfig.GetAlarmUrl(),fmt.Sprintf(format, args))
+func Warnf(logConfig conf.LogInterface, format string, args ...interface{}) {
+	SendMonitor2DingDing(logConfig.GetAlarmUrl(), fmt.Sprintf(format, args))
 	logConfig.GetSugaredLogger().Warnf(format, args...)
 }
 
-func Errorf(logConfig conf.LogInterface,format string, args ...interface{}) {
-	SendMonitor2DingDing(logConfig.GetAlarmUrl(),fmt.Sprintf(format, args))
+func Errorf(logConfig conf.LogInterface, format string, args ...interface{}) {
+	SendMonitor2DingDing(logConfig.GetAlarmUrl(), fmt.Sprintf(format, args))
 	logConfig.GetSugaredLogger().Errorf(format, args...)
 }
 
-func SendMonitor2DingDing(alarmUrl,args string) {
+func SendMonitor2DingDing(alarmUrl, args string) {
 	if len(alarmUrl) != 0 {
 		http.Post(alarmUrl, "application/json", strings.NewReader(args))
 	}

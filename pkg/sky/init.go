@@ -11,36 +11,46 @@ import (
 	"sky/pkg/logger"
 )
 
+const (
+	Namespace = "Namespace"
+	Version   = "v1"
+)
 
-func InitAll(path string)(err error){
+func InitAll(path string) (err error) {
 	initSky()
 	apis.Apis()
-	if err := initConfig(path);err != nil {
+	if err := initConfig(path); err != nil {
 		return err
 	}
-	if err := initClient();err != nil {
+	if err := initClient(); err != nil {
 		return err
 	}
-	if err := initLog();err != nil {
+	if err := initLog(); err != nil {
 		return err
 	}
-	if err := pprofServer();err != nil {
+	if err := pprofServer(); err != nil {
 		return err
 	}
-	if err := run();err != nil {
+	if err := run(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func initSky(){
-	Sky = &Config{SkyConfig:&SkyConfig{
-		Stop:make(chan struct{}),
-		Informers:make([]cache.InformerSynced,10),
-	}}
+func initSky() {
+	Sky = &Config{
+		SkyConfig: &SkyConfig{
+			Stop:      make(chan struct{}),
+			Informers: make([]cache.InformerSynced, 10),
+		},
+		UserLabels: make(map[string]UserLabels, 10),
+		User:       &User{},
+		Code:&Code{},
+	}
+	Sky.SkyConfig.Config = Sky
 }
 
-func initConfig(path string)error{
+func initConfig(path string) error {
 	if _, err := toml.DecodeFile(path, Sky); err != nil {
 		fmt.Printf("toml decode err %v", err)
 		return err
@@ -48,29 +58,28 @@ func initConfig(path string)error{
 	return nil
 }
 
-func initLog()error{
-	if err := logger.InitLogger(Sky);err != nil {
+func initLog() error {
+	if err := logger.InitLogger(Sky); err != nil {
 		return err
 	}
 	return nil
 }
 
-func initClient()(err error){
-	Sky.SkyConfig.Client,err = client.GetClient()
+func initClient() (err error) {
+	Sky.SkyConfig.Client, err = client.GetClient()
 	return err
 }
 
-
-func pprofServer()error{
+func pprofServer() error {
 	ch := make(chan error)
-	go func(){
-		if err := http.ListenAndServe(Sky.SkyConfig.SkyPProfAddr, nil);err != nil {
+	go func() {
+		if err := http.ListenAndServe(Sky.SkyConfig.SkyPProfAddr, nil); err != nil {
 			ch <- err
-			fmt.Println("start pprofServer err ",err)
+			fmt.Println("start pprofServer err ", err)
 		}
 	}()
 	select {
-	case err :=<- ch:
+	case err := <-ch:
 		close(ch)
 		return err
 	default:
@@ -78,8 +87,8 @@ func pprofServer()error{
 	}
 }
 
-func run()error{
-	if err := http.ListenAndServe(Sky.SkyConfig.SkyAddr,nil);err != nil {
+func run() error {
+	if err := http.ListenAndServe(Sky.SkyConfig.SkyAddr, nil); err != nil {
 		return err
 	}
 	return nil

@@ -12,11 +12,11 @@ import (
 	"k8s.io/client-go/util/retry"
 )
 
-func (s *SkyConfig)CreateInformer(){
+func (s *SkyConfig) CreateInformer() {
 	factory := informers.NewSharedInformerFactory(s.Client, 0)
 	s.Informer = factory.Core().V1().ConfigMaps()
 	s.NamespaceInformer = factory.Core().V1().Namespaces()
-	s.Informers = append(s.Informers,s.Informer.Informer().HasSynced,s.NamespaceInformer.Informer().HasSynced)
+	s.Informers = append(s.Informers, s.Informer.Informer().HasSynced, s.NamespaceInformer.Informer().HasSynced)
 	go factory.Start(s.Stop)
 	if !cache.WaitForCacheSync(s.Stop, s.Informers...) {
 		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
@@ -25,17 +25,17 @@ func (s *SkyConfig)CreateInformer(){
 	s.Informer.Informer().AddEventHandler(s)
 }
 
-func (s *SkyConfig)CheckNs()error{
-	if _,err := s.NamespaceInformer.Lister().Get("sky");err != nil {
+func (s *SkyConfig) CheckNs() error {
+	if _, err := s.NamespaceInformer.Lister().Get(s.NameSpace); err != nil {
 		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			_,err := s.Client.CoreV1().Namespaces().Create(&v1.Namespace{
+			_, err := s.Client.CoreV1().Namespaces().Create(&v1.Namespace{
 				TypeMeta: metav1.TypeMeta{
-					Kind:       "Namespace",
-					APIVersion: "v1",
+					Kind:       Namespace,
+					APIVersion: Version,
 				},
-				ObjectMeta:metav1.ObjectMeta{
-					Name:                       s.NameSpace,
-					Namespace:                  s.NameSpace,
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      s.NameSpace,
+					Namespace: s.NameSpace,
 				},
 			})
 			return err
@@ -45,23 +45,24 @@ func (s *SkyConfig)CheckNs()error{
 	return nil
 }
 
-func (s *SkyConfig)CreateUserDb()error{
-	labels := make(map[string]string,1)
-	labels["key"] = "user"
-	if err := s.Informer.Lister().ConfigMaps("sky");err != nil {
+func (s *SkyConfig) CreateUserDb() error {
+	labels := make(map[string]string, 1)
+	for k, _ := range s.Config.UserLabels {
+		labels[k] = s.Config.UserLabels[k].Value
+	}
+	if err := s.Informer.Lister().ConfigMaps(s.NameSpace); err != nil {
 		err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			_,err := s.Client.CoreV1().ConfigMaps("sky").Create(&v1.ConfigMap{
-				TypeMeta:   metav1.TypeMeta{
-					Kind:   "ConfigMap",
-					APIVersion:"v1",
+			_, err := s.Client.CoreV1().ConfigMaps(s.NameSpace).Create(&v1.ConfigMap{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       s.Config.User.UserKind,
+					APIVersion: s.Config.User.UserVersion,
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:"user",
-					Namespace:"sky",
-					UID:uuid.NewUUID(),
-					Labels:labels,
+					Name:      s.User.UserStoreName,
+					Namespace: s.NameSpace,
+					UID:       uuid.NewUUID(),
+					Labels:    labels,
 				},
-				Data: map[string]string{},
 			})
 			return err
 		})
