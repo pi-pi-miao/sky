@@ -9,15 +9,18 @@ import (
 
 var (
 	start = cli.Command{
-
 		Name:        "start",
-		Usage:       "--config=./config/config.toml",
+		Usage:       "--path=./config/config.toml --config=./build/config",
 		Description: "start sky",
 		Action:      starts,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "config",
 				Usage: "this sky config",
+			},
+			&cli.StringFlag{
+				Name:        "path",
+				Usage:"path",
 			},
 		},
 	}
@@ -28,7 +31,8 @@ func starts(cli *cli.Context) error {
 	if config == "" {
 		return errors.New("please add --config=./config/config.toml")
 	}
-	if err := server.Sky(config); err != nil {
+	path := cli.String("path")
+	if err := server.Sky(config,path); err != nil {
 		fmt.Println("run sky failed ", err)
 		return err
 	}

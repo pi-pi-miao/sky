@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	conf "sky/config"
 	"strings"
 	"time"
@@ -15,12 +16,43 @@ import (
 )
 
 func InitLogger(logConfig conf.LogInterface) error {
+	if err := checkPath(logConfig.GetLogPath());err != nil {
+		return err
+	}
 	err := initLogger(logConfig)
 	if err != nil {
 		return err
 	}
 	log.SetFlags(log.Lmicroseconds | log.Lshortfile | log.LstdFlags)
 	return nil
+}
+
+func checkPath(path string)(err error){
+	var logPath string
+	_,err = os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err){
+			paths := strings.Split(path,"/")
+			for k,_ :=range paths {
+				if k == (len(paths) -1) {
+					break
+				}
+				logPath +=paths[k]
+				logPath += "/"
+			}
+			if err = os.MkdirAll(logPath,os.ModePerm);err != nil {
+				fmt.Println("[checkPath] mkdirAll err:",err)
+				return err
+			}
+			f,err := os.Create(path)
+			defer f.Close()
+			if err != nil {
+				fmt.Println("[checkPath] create err:",err)
+				return err
+			}
+		}
+	}
+	return err
 }
 
 func ZnTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

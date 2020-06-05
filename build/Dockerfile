@@ -1,18 +1,10 @@
 FROM golang:1.14 AS builder
-
-WORKDIR /build
-
-ENV GOPROXY https://goproxy.cn
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
+WORKDIR /sky
 COPY . .
-
-RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o /build/bin/sky /build/cmd/main.go
-
-FROM alpine:3.10 AS final
-
+RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o /sky/bin/sky /sky/cmd/
+FROM alpine:latest AS final
 WORKDIR /app
-COPY --from=builder /build /app/
-
-ENTRYPOINT ["./bin/sky"]
+COPY --from=builder /sky /app/
+RUN cat /app/config/config.toml
+RUN chmod +x /app/bin/sky
+CMD ["/app/bin/sky","start","--path=/app/config/config.toml","--config=/app/build/config"]

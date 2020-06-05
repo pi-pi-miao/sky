@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535
-	github.com/cznic/ql v1.2.0
+	github.com/cznic/ql v1.2.0 // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/json-iterator/go v1.1.9
 	github.com/urfave/cli v1.22.3

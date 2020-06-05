@@ -5,7 +5,7 @@ sky_pprof_addr = ":9090"
 is_debug       = true
 alarm_url      = ""
 log_level      = "debug"
-log_pah        = "./log/log"
+log_pah        = "../log/log"
 namespace      = "sky"
 
 
