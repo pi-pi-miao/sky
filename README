@@ -1,1 +1,3 @@
  #  SKY is config Center in kubernetes
+
+基于kubernetes的配置中心,配置会存放到kubernetes的etcd中
